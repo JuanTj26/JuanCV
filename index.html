@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portafolio de Juan Torales, desarrollador multiplataforma especializado en web y IoT">
+    <meta name="keywords" content="desarrollo web, IoT, programador junior, portafolio">
+    <meta name="author" content="Juan Torales">
+    <meta name="robots" content="index, follow">
+    <title>Juan Torales - Bienvenido</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onerror="console.warn('Font Awesome no cargó');">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap');
+
+        :root {
+            --neon-green: #00ffcc;
+            --neon-cyan: #00e6ff;
+            --bg-dark: #05050f;
+            --text-light: #f5f5ff;
+            --glow: 0 0 20px rgba(0, 255, 204, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #0a0a1a, #05050f);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #webgl-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.7;
+        }
+
+        .intro {
+            text-align: center;
+            z-index: 1;
+            transition: opacity 0s; /* Para desaparición instantánea */
+        }
+
+        .intro.hidden {
+            opacity: 0;
+            pointer-events: none; /* Evita interacciones */
+        }
+
+        .intro h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--glow);
+            animation: pulse 2s infinite;
+            margin-bottom: 2rem;
+        }
+
+        .portfolio-button {
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan));
+            color: var(--bg-dark);
+            padding: clamp(1rem, 2vw, 1.5rem) clamp(2rem, 4vw, 3rem);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow);
+            z-index: 2;
+        }
+
+        .portfolio-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.8);
+        }
+
+        .portfolio-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+        }
+
+        .portfolio-button:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @media (max-width: 768px) {
+            .intro h1 {
+                font-size: clamp(2rem, 6vw, 3rem);
+            }
+            .portfolio-button {
+                padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+                font-size: clamp(1rem, 2vw, 1.2rem);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="webgl-bg"></canvas>
+    <div class="intro" id="intro">
+        <h1>Juan Torales</h1>
+        <a href="portfolio.html" class="portfolio-button" id="portfolioButton">Ver Portafolio</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer onerror="console.warn('Three.js no cargó');"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const isMobile = window.innerWidth <= 768;
+
+            // WebGL Fondo
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-bg'), alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const particlesCount = isMobile ? 800 : 2500;
+            const particlesGeometry = new THREE.BufferGeometry();
+            const posArray = new Float32Array(particlesCount * 3);
+            const colorsArray = new Float32Array(particlesCount * 3);
+            const sizesArray = new Float32Array(particlesCount);
+            const opacities = new Float32Array(particlesCount);
+            const velocities = new Float32Array(particlesCount * 3);
+
+            const colors = [[0, 1, 0.8], [0, 0.9, 1], [0.83, 0, 1]];
+
+            for (let i = 0; i < particlesCount; i++) {
+                posArray[i * 3] = (Math.random() - 0.5) * 80;
+                posArray[i * 3 + 1] = (Math.random() - 0.5) * 80;
+                posArray[i * 3 + 2] = (Math.random() - 0.5) * 80;
+
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                colorsArray[i * 3] = color[0];
+                colorsArray[i * 3 + 1] = color[1];
+                colorsArray[i * 3 + 2] = color[2];
+
+                sizesArray[i] = Math.random() * 0.15 + 0.05;
+                opacities[i] = 0.85;
+                velocities[i * 3] = (Math.random() - 0.5) * 0.015;
+                velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.015;
+                velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.015;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+            particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizesArray, 1));
+            particlesGeometry.setAttribute('opacity', new THREE.BufferAttribute(opacities, 1));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.15,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.85,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            let mouseX = 0, mouseY = 0;
+            if (!isMobile) {
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+                });
+            } else {
+                document.addEventListener('touchmove', (e) => {
+                    if (e.touches.length > 0) {
+                        mouseX = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+                        mouseY = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+                    }
+                });
+            }
+
+            camera.position.z = 30;
+            const clock = new THREE.Clock();
+            let rushMode = false;
+            let rushStartTime = 0;
+
+            const animateParticles = () => {
+                requestAnimationFrame(animateParticles);
+                const delta = clock.getDelta();
+                const elapsed = clock.getElapsedTime();
+
+                const positions = particlesGeometry.attributes.position.array;
+                const sizes = particlesGeometry.attributes.size.array;
+                const opacities = particlesGeometry.attributes.opacity.array;
+
+                if (rushMode && elapsed - rushStartTime < 2) {
+                    // Partículas corren hacia el espectador
+                    for (let i = 0; i < particlesCount; i++) {
+                        // Acelerar hacia la cámara (z aumenta)
+                        velocities[i * 3 + 2] += (Math.random() * 0.15 + 0.6) * delta * 60;
+                        positions[i * 3 + 2] += velocities[i * 3 + 2] * delta * 8;
+
+                        // Aumento gradual de tamaño
+                        sizes[i] = Math.min(sizes[i] + delta * 1.2, 0.6);
+
+                        // Desvanecer al acercarse
+                        if (positions[i * 3 + 2] > 25) {
+                            opacities[i] = Math.max(opacities[i] - delta * 1.5, 0);
+                        }
+
+                        // Reiniciar partículas que pasan la cámara
+                        if (positions[i * 3 + 2] > 30) {
+                            positions[i * 3 + 2] = -50;
+                            velocities[i * 3 + 2] = 0;
+                            sizes[i] = Math.random() * 0.15 + 0.05;
+                            opacities[i] = 0.85;
+                        }
+                    }
+                } else {
+                    // Comportamiento por defecto: deriva lenta
+                    for (let i = 0; i < particlesCount; i++) {
+                        positions[i * 3] += velocities[i * 3] * delta * 60;
+                        positions[i * 3 + 1] += velocities[i * 3 + 1] * delta * 60;
+                        positions[i * 3 + 2] += velocities[i * 3 + 2] * delta * 60;
+
+                        const dx = positions[i * 3] - mouseX * 40;
+                        const dy = positions[i * 3 + 1] - mouseY * 40;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 8) {
+                            velocities[i * 3] -= dx * 0.002 * delta * 60;
+                            velocities[i * 3 + 1] -= dy * 0.002 * delta * 60;
+                        }
+
+                        velocities[i * 3] *= 0.995;
+                        velocities[i * 3 + 1] *= 0.995;
+                        velocities[i * 3 + 2] *= 0.995;
+
+                        if (Math.abs(positions[i * 3]) > 40) velocities[i * 3] *= -0.8;
+                        if (Math.abs(positions[i * 3 + 1]) > 40) velocities[i * 3 + 1] *= -0.8;
+                        if (Math.abs(positions[i * 3 + 2]) > 40) velocities[i * 3 + 2] *= -0.8;
+
+                        sizes[i] = 0.1 + Math.sin(elapsed * 0.5 + i) * 0.03;
+                        opacities[i] = 0.85;
+                    }
+                }
+
+                particlesGeometry.attributes.position.needsUpdate = true;
+                particlesGeometry.attributes.size.needsUpdate = true;
+                particlesGeometry.attributes.opacity.needsUpdate = true;
+
+                particlesMesh.rotation.y += 0.0003 * delta * 60;
+                renderer.render(scene, camera);
+            };
+
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Transición de Partículas
+            const portfolioButton = document.getElementById('portfolioButton');
+            const intro = document.getElementById('intro');
+            portfolioButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                intro.classList.add('hidden'); // Ocultar nombre y botón
+                rushMode = true;
+                rushStartTime = clock.getElapsedTime();
+                setTimeout(() => {
+                    window.location.href = portfolioButton.href;
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
