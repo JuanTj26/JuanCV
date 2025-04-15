@@ -10,7 +10,7 @@
     <title>Juan Torales - Bienvenido</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onerror="console.warn('Font Awesome no cargó');">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700&family=Inter:wght@300;400&display=swap');
 
         :root {
             --neon-green: #00ffcc;
@@ -51,12 +51,12 @@
         .intro {
             text-align: center;
             z-index: 1;
-            transition: opacity 0s; /* Para desaparición instantánea */
+            transition: opacity 0s;
         }
 
         .intro.hidden {
             opacity: 0;
-            pointer-events: none; /* Evita interacciones */
+            pointer-events: none;
         }
 
         .intro h1 {
@@ -67,6 +67,13 @@
             color: transparent;
             text-shadow: var(--glow);
             animation: pulse 2s infinite;
+            margin-bottom: 1rem;
+        }
+
+        .intro p {
+            font-family: 'Inter', sans-serif;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: var(--text-light);
             margin-bottom: 2rem;
         }
 
@@ -108,26 +115,71 @@
             height: 400px;
         }
 
+        .center-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 174, 255, 1) 10%, transparent 70%);
+            transform: translate(-50%, -50%);
+            filter: blur(60px);
+            opacity: 0.8;
+            z-index: -1;
+            animation: glowPulse 3s infinite ease-in-out;
+        }
+
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
         }
 
         @media (max-width: 768px) {
             .intro h1 {
                 font-size: clamp(2rem, 6vw, 3rem);
             }
+            .intro p {
+                font-size: clamp(0.8rem, 1.8vw, 1.2rem);
+            }
             .portfolio-button {
                 padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
                 font-size: clamp(1rem, 2vw, 1.2rem);
+            }
+            .center-glow {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .intro h1 {
+                font-size: clamp(1.5rem, 5vw, 2.5rem);
+            }
+            .intro p {
+                font-size: clamp(0.7rem, 1.5vw, 1rem);
+            }
+            .portfolio-button {
+                padding: clamp(0.6rem, 1.5vw, 0.8rem) clamp(1.2rem, 2.5vw, 1.5rem);
+                font-size: clamp(0.9rem, 1.8vw, 1rem);
+            }
+            .center-glow {
+                width: 150px;
+                height: 150px;
             }
         }
     </style>
 </head>
 <body>
     <canvas id="webgl-bg"></canvas>
+    <div class="center-glow"></div>
     <div class="intro" id="intro">
         <h1>Juan Torales</h1>
+        <p>Desarrollador de Software Multiplataforma</p>
         <a href="portfolio.html" class="portfolio-button" id="portfolioButton">Ver Portafolio</a>
     </div>
 
@@ -143,7 +195,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            const particlesCount = isMobile ? 800 : 2500;
+            const particlesCount = isMobile ? 2000 : 3000;
             const particlesGeometry = new THREE.BufferGeometry();
             const posArray = new Float32Array(particlesCount * 3);
             const colorsArray = new Float32Array(particlesCount * 3);
